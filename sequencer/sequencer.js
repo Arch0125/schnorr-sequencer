@@ -1,5 +1,3 @@
-// sequencer.js
-
 const express = require("express");
 const { ec } = require("elliptic");
 const BN = require("bn.js");
@@ -54,7 +52,10 @@ app.post("/verify", (req, res) => {
     const R = userNonce.getPublic().add(Rs);
     const sHex = s.toString(16);
     const RHex = R.encode('hex');
+    const X = (userPub.getPublic().mul(1)).add(sequencer.getPublic().mul(1));
     const signatureHash = sha256(Buffer.concat([Buffer.from(RHex, 'hex'), Buffer.from(sHex, 'hex')]));
+    const isFullSignatureValid = curve.g.mul(new BN(s, 16)).eq(R.add(X.mul(eBN)));
+    console.log('Is full signature valid?', isFullSignatureValid);
     console.log('Signature hash:', signatureHash);
   }
   res.json({ isValid: isValid });
